@@ -1,3 +1,4 @@
+"use strict";
 var VERSION = "1.5.0",
 	querystring = require("querystring"),
 	oauth = require("oauth"),
@@ -27,7 +28,7 @@ var Twitter = function(options) {
 	this.streamOa.setClientOptions({agent: false});
 
 	return this;
-}
+};
 Twitter.VERSION = VERSION;
 
 Twitter.prototype.getRequestToken = function(callback) {
@@ -38,11 +39,11 @@ Twitter.prototype.getRequestToken = function(callback) {
 			callback(null, oauthToken, oauthTokenSecret, results);
 		}
 	});
-}
+};
 
 Twitter.prototype.getAuthUrl = function(requestToken) {
 	return authUrl + requestToken;
-}
+};
 
 Twitter.prototype.getAccessToken = function(requestToken, requestTokenSecret, oauth_verifier, callback) {
 	this.oa.getOAuthAccessToken(requestToken, requestTokenSecret, oauth_verifier, function(error, oauthAccessToken, oauthAccessTokenSecret, results) {
@@ -52,7 +53,7 @@ Twitter.prototype.getAccessToken = function(requestToken, requestTokenSecret, oa
 			callback(null, oauthAccessToken, oauthAccessTokenSecret, results);
 		}
 	});
-}
+};
 
 Twitter.prototype.verifyCredentials = function(accessToken, accessTokenSecret, callback) {
 	this.oa.get(baseUrl + "account/verify_credentials.json", accessToken, accessTokenSecret, function(error, data, response) {
@@ -66,7 +67,7 @@ Twitter.prototype.verifyCredentials = function(accessToken, accessTokenSecret, c
 			}
 		}
 	});
-}
+};
 
 
 // Timelines
@@ -111,7 +112,7 @@ Twitter.prototype.getTimeline = function(type, params, accessToken, accessTokenS
 			}
 		}
 	});
-}
+};
 
 //Streaming
 Twitter.prototype.getStream = function(type, params, accessToken, accessTokenSecret, dataCallback, endCallback) {
@@ -138,7 +139,8 @@ Twitter.prototype.getStream = function(type, params, accessToken, accessTokenSec
 			url = "https://stream.twitter.com/1.1/statuses/filter.json";
 			break;
 		default:
-			callback("Please specify an existing type.");
+			var errorMessage = "Please specify an existing type.";
+			dataCallback({message: errorMessage, e: new Error(errorMessage)}, null, null, null);
 			return false;
 	}
 
@@ -184,7 +186,7 @@ Twitter.prototype.getStream = function(type, params, accessToken, accessTokenSec
 	req.end();
 
 	return req;
-}
+};
 
 // Tweets
 Twitter.prototype.statuses = function(type, params, accessToken, accessTokenSecret, callback) {
@@ -250,7 +252,7 @@ Twitter.prototype.statuses = function(type, params, accessToken, accessTokenSecr
 			}
 		});
 	}
-}
+};
 
 Twitter.prototype.updateWithMedia = function(params, accessToken, accessTokenSecret, callback) {
 	var r = request.post({
@@ -291,7 +293,7 @@ Twitter.prototype.updateWithMedia = function(params, accessToken, accessTokenSec
 			form.append("media[]", media[i]);
 		}
 	}
-}
+};
 
 
 // Search
@@ -455,7 +457,7 @@ Twitter.prototype.updateProfileImage = function(params, accessToken, accessToken
 
 	form.append("image", fs.createReadStream(params["image"]));
 
-}
+};
 
 // Account
 Twitter.prototype.account = function(type, params, accessToken, accessTokenSecret, callback) {
