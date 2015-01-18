@@ -2,6 +2,7 @@ var VERSION = "1.5.0",
 	querystring = require("querystring"),
 	oauth = require("oauth"),
 	request = require("request"),
+	Agent = require("yakaa"),
 	fs = require("fs");
 
 var baseUrl = "https://api.twitter.com/1.1/";
@@ -15,8 +16,15 @@ var Twitter = function(options) {
 	this.consumerSecret = options.consumerSecret;
 	this.callback = options.callback;
 
+	this.keepAliveAgent = new Agent.SSL({ keepAlive: true });
+
 	this.oa = new oauth.OAuth("https://twitter.com/oauth/request_token", "https://twitter.com/oauth/access_token",
 		this.consumerKey, this.consumerSecret, "1.0A", this.callback, "HMAC-SHA1");
+	this.oa.setClientOptions({agent: this.keepAliveAgent});
+
+	this.streamOa = new oauth.OAuth("https://twitter.com/oauth/request_token", "https://twitter.com/oauth/access_token",
+		this.consumerKey, this.consumerSecret, "1.0A", this.callback, "HMAC-SHA1");
+	this.streamOa.setClientOptions({agent: false});
 
 	return this;
 }
@@ -136,9 +144,9 @@ Twitter.prototype.getStream = function(type, params, accessToken, accessTokenSec
 
 	var req;
 	if (method == "GET") {
-		req = this.oa.get(url + "?" + querystring.stringify(params), accessToken, accessTokenSecret);
+		req = this.streamOa.get(url + "?" + querystring.stringify(params), accessToken, accessTokenSecret);
 	} else {
-		req = this.oa.post(url, accessToken, accessTokenSecret, params, null);
+		req = this.streamOa.post(url, accessToken, accessTokenSecret, params, null);
 	}
 	var msg = [];
 	req.addListener("response", function(res) {
@@ -508,7 +516,7 @@ Twitter.prototype.blocks = function(type, params, accessToken, accessTokenSecret
 	}
 
 	if (method == "GET") {
-		this.oa.get(baseUrl + "blocks/" + url + ".json?" + querystring.stringify(params), accessToken, accessTokenSecret, function(error, data, response) {
+		var req = this.oa.get(baseUrl + "blocks/" + url + ".json?" + querystring.stringify(params), accessToken, accessTokenSecret, function(error, data, response) {
 			if (error) {
 				callback(error, data, response, baseUrl + "blocks/" + url + ".json?" + querystring.stringify(params));
 			} else {
@@ -519,6 +527,10 @@ Twitter.prototype.blocks = function(type, params, accessToken, accessTokenSecret
 				}
 			}
 		});
+		req.setTimeout(60000, function() {
+			console.log('aborting GET request');
+			req.abort();
+		})
 	} else {
 		this.oa.post(baseUrl + "blocks/" + url + ".json", accessToken, accessTokenSecret, params, function(error, data, response) {
 			if (error) {
@@ -549,7 +561,7 @@ Twitter.prototype.mutes = function(type, params, accessToken, accessTokenSecret,
 	if (method == "GET") {
 		this.oa.get(baseUrl + "mutes/" + url + ".json?" + querystring.stringify(params), accessToken, accessTokenSecret, function(error, data, response) {
 			if (error) {
-			callback(error, data, response, baseUrl + "mutes/" + url + ".json?" + querystring.stringify(params));
+				callback(error, data, response, baseUrl + "mutes/" + url + ".json?" + querystring.stringify(params));
 			} else {
 				try {
 					callback(null, JSON.parse(data), response);
