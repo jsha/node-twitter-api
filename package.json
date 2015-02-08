@@ -14,7 +14,7 @@
 		"url": "https://github.com/reneraab/node-twitter-api.git"
 	},
 	"dependencies": {
-		"oauth": "jsha/node-oauth#3bc31844369f21f612aa9ad02f2a625b77a0c595",
+		"oauth": "jsha/node-oauth#2176d3a135ba3cbdbdd54417640a853dc764493d",
 		"request": "*"
 	},
 	"engines": {
