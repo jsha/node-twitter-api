@@ -1,24 +1,29 @@
 {
-	"name": "node-twitter-api",
-	"version": "1.6.0",
-	"description": "Simple module for using Twitter's API in node.js",
-	"keywords": ["twitter", "oauth", "rest", "streaming"],
-	"homepage": "https://github.com/reneraab/node-twitter-api",
-	"author": "René Raab",
-	"licenses": {
-		"type": "MIT",
-		"url": "https://raw.github.com/reneraab/node-twitter-api/master/LICENSE"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/reneraab/node-twitter-api.git"
-	},
-	"dependencies": {
-		"oauth": ">=0.8.4",
-		"request": "*"
-	},
-	"engines": {
-		"node": ">=0.4.0"
-	},
-	"main": "./twitter"
+  "name": "node-twitter-api",
+  "version": "1.6.0",
+  "description": "Simple module for using Twitter's API in node.js",
+  "keywords": [
+    "twitter",
+    "oauth",
+    "rest",
+    "streaming"
+  ],
+  "homepage": "https://github.com/reneraab/node-twitter-api",
+  "author": "René Raab",
+  "licenses": {
+    "type": "MIT",
+    "url": "https://raw.github.com/reneraab/node-twitter-api/master/LICENSE"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reneraab/node-twitter-api.git"
+  },
+  "dependencies": {
+    "oauth": "git://github.com/jsha/node-oauth#http2",
+    "request": "*"
+  },
+  "engines": {
+    "node": ">=0.4.0"
+  },
+  "main": "./twitter"
 }
