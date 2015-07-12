@@ -3,7 +3,7 @@ var VERSION = "1.5.0",
 	querystring = require("querystring"),
 	oauth = require("oauth"),
 	request = require("request"),
-	Agent = require("yakaa"),
+	https = require("https"),
 	fs = require("fs");
 
 var baseUrl = "https://api.twitter.com/1.1/";
@@ -17,7 +17,7 @@ var Twitter = function(options) {
 	this.consumerSecret = options.consumerSecret;
 	this.callback = options.callback;
 
-	this.keepAliveAgent = new Agent.SSL({ keepAlive: true });
+	this.keepAliveAgent = new https.Agent({ keepAlive: true });
 
 	this.oa = new oauth.OAuth("https://twitter.com/oauth/request_token", "https://twitter.com/oauth/access_token",
 		this.consumerKey, this.consumerSecret, "1.0A", this.callback, "HMAC-SHA1");
