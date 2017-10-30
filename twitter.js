@@ -11,7 +11,7 @@ const timingStats = new prom.Summary({
 	name: "twitter_req_time_seconds",
 	help: "Time in seconds taken by twitter requests",
 	percentiles: [ 0.50, 0.90, 0.99 ],
-	labelNames: [ "endpoint" ]
+	labelNames: [ "endpoint", "status" ]
 });
 
 var baseUrl = "https://api.twitter.com/1.1/";
@@ -199,11 +199,11 @@ Twitter.prototype.getStream = function(type, params, accessToken, accessTokenSec
 function time(url, req) {
 	let beginTime;
 	req.on('socket', () => beginTime = process.hrtime());
-	req.on('response', () => {
+	req.on('response', response => {
 		const [diffSeconds, diffNS] = process.hrtime(beginTime);
 		const diffTotal = diffSeconds + diffNS / 1e9;
 		const endpoint = url.replace(baseUrl, "").split(/\/|\./).slice(0, 2).join("/");
-		timingStats.labels(endpoint).observe(diffTotal);
+		timingStats.labels(endpoint, response.statusCode).observe(diffTotal);
 	})
 }
 
