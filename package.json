@@ -2,7 +2,12 @@
 	"name": "node-twitter-api",
 	"version": "1.5.0",
 	"description": "Simple module for using Twitter's API in node.js",
-	"keywords": ["twitter", "oauth", "rest", "streaming"],
+	"keywords": [
+		"twitter",
+		"oauth",
+		"rest",
+		"streaming"
+	],
 	"homepage": "https://github.com/reneraab/node-twitter-api",
 	"author": "René Raab",
 	"licenses": {
@@ -15,6 +20,7 @@
 	},
 	"dependencies": {
 		"oauth": "jsha/node-oauth#2176d3a135ba3cbdbdd54417640a853dc764493d",
+		"prom-client": "^10.2.1",
 		"request": "*"
 	},
 	"engines": {

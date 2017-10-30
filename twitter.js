@@ -4,7 +4,15 @@ var VERSION = "1.5.0",
 	oauth = require("oauth"),
 	request = require("request"),
 	https = require("https"),
-	fs = require("fs");
+	fs = require("fs"),
+	prom = require("prom-client");
+
+const timingStats = new prom.Summary({
+	name: "twitter_req_time_seconds",
+	help: "Time in seconds taken by twitter requests",
+	percentiles: [ 0.50, 0.90, 0.99 ],
+	labelNames: [ "endpoint" ]
+});
 
 var baseUrl = "https://api.twitter.com/1.1/";
 var authUrl = "https://twitter.com/oauth/authenticate?oauth_token=";
@@ -188,6 +196,24 @@ Twitter.prototype.getStream = function(type, params, accessToken, accessTokenSec
 	return req;
 };
 
+function time(url, req) {
+	let beginTime;
+	req.on('socket', () => beginTime = process.hrtime());
+	req.on('response', () => {
+		const [diffSeconds, diffNS] = process.hrtime(beginTime);
+		const diffTotal = diffSeconds + diffNS / 1e9;
+		const endpoint = url.replace(baseUrl, "").split("/").slice(0, 2).join("/");
+		timingStats.labels(endpoint).observe(diffTotal);
+	})
+}
+
+Twitter.prototype.get = function(url, accessToken, accessTokenSecret, callback) {
+	time(url, this.oa.get(url, accessToken, accessTokenSecret, callback));
+}
+Twitter.prototype.post = function(url, accessToken, accessTokenSecret, params, callback) {
+	time(url, this.oa.post(url, accessToken, accessTokenSecret, params, callback))
+}
+
 // Tweets
 Twitter.prototype.statuses = function(type, params, accessToken, accessTokenSecret, callback) {
 	var url = type.toLowerCase();
@@ -228,7 +254,7 @@ Twitter.prototype.statuses = function(type, params, accessToken, accessTokenSecr
 	}
 
 	if (method == "GET") {
-		this.oa.get(baseUrl + "statuses/" + url + ".json?" + querystring.stringify(params), accessToken, accessTokenSecret, function(error, data, response) {
+		this.get(baseUrl + "statuses/" + url + ".json?" + querystring.stringify(params), accessToken, accessTokenSecret, function(error, data, response) {
 			if (error) {
 				callback(error, data, response, baseUrl + "statuses/" + url + ".json?" + querystring.stringify(params));
 			} else {
@@ -240,7 +266,7 @@ Twitter.prototype.statuses = function(type, params, accessToken, accessTokenSecr
 			}
 		});
 	} else {
-		this.oa.post(baseUrl + "statuses/" + url + ".json", accessToken, accessTokenSecret, params, function(error, data, response) {
+		this.post(baseUrl + "statuses/" + url + ".json", accessToken, accessTokenSecret, params, function(error, data, response) {
 			if (error) {
 				callback(error, data, response);
 			} else {
