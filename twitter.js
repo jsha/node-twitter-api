@@ -205,13 +205,14 @@ function time(url, req) {
 		const endpoint = url.replace(baseUrl, "").split(/\/|\./).slice(0, 2).join("/");
 		timingStats.labels(endpoint, response.statusCode).observe(diffTotal);
 	})
+  return req;
 }
 
 Twitter.prototype.get = function(url, accessToken, accessTokenSecret, callback) {
-	time(url, this.oa.get(url, accessToken, accessTokenSecret, callback));
+	return time(url, this.oa.get(url, accessToken, accessTokenSecret, callback));
 }
 Twitter.prototype.post = function(url, accessToken, accessTokenSecret, params, callback) {
-	time(url, this.oa.post(url, accessToken, accessTokenSecret, params, callback))
+	return time(url, this.oa.post(url, accessToken, accessTokenSecret, params, callback))
 }
 
 // Tweets
