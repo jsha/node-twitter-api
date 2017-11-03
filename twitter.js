@@ -198,6 +198,7 @@ Twitter.prototype.getStream = function(type, params, accessToken, accessTokenSec
 
 function time(url, req) {
 	let beginTime;
+	req.setTimeout(60000);
 	req.on('socket', () => beginTime = process.hrtime());
 	req.on('response', response => {
 		const [diffSeconds, diffNS] = process.hrtime(beginTime);
@@ -556,10 +557,6 @@ Twitter.prototype.blocks = function(type, params, accessToken, accessTokenSecret
 				}
 			}
 		});
-		req.setTimeout(60000, function() {
-			console.log('aborting GET request');
-			req.abort();
-		})
 	} else {
 		this.post(baseUrl + "blocks/" + url + ".json", accessToken, accessTokenSecret, params, function(error, data, response) {
 			if (error) {
